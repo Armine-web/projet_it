@@ -35,8 +35,8 @@ function getItem(
 const items: MenuItem[] = [
   getItem(<Link href='/admin/dashboard'>Dashboard</Link>, '1', <PieChartOutlined />),
   getItem(<Link href="/admin/navbar">Navbar</Link>, '2', <DesktopOutlined />),
-  getItem('User', 'sub1', <UserOutlined />, [
-    getItem(<Link href="/admin/slider">Slider</Link>, '3'),
+  getItem('Home Page', 'sub1', <UserOutlined />, [
+    getItem(<Link href="/admin/home/services">Service</Link>, '3'),
     getItem(<Link href="/admin/top-products">Top Products</Link>, '4'),
     getItem(<Link href="/admin/alex">Alex</Link>, '5'),
   ]),

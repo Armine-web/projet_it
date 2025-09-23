@@ -4,6 +4,8 @@ import type { FormProps} from 'antd';
 import { Button, Checkbox, Form, Input, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 
+import '@ant-design/v5-patch-for-react-19';
+
 type FieldType = {
   username?: string;
   password?: string;
