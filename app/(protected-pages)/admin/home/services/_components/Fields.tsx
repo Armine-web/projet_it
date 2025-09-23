@@ -74,7 +74,6 @@ export function Fields() {
   const saveServiceRow = (row: ServiceRow) => {
     console.log('Saved service:', row);
     console.log('Selected language:', selectedLang);
-    alert(`Saved: ${row.order}. ${row.icon} - ${row.description} [${selectedLang}]`);
   };
 
   return (
@@ -139,7 +138,7 @@ export function Fields() {
             </Col>
           </Row>
 
-          {/* Callout / Preview */}
+
           <Row>
             <Col span={24}>
               <Text type="secondary">
