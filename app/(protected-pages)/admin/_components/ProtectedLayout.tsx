@@ -37,7 +37,7 @@ const items: MenuItem[] = [
   getItem(<Link href="/admin/navbar">Navbar</Link>, '2', <DesktopOutlined />),
   getItem('Home Page', 'sub1', <UserOutlined />, [
     getItem(<Link href="/admin/home/services">Service</Link>, '3'),
-    getItem(<Link href="/admin/top-products">Top Products</Link>, '4'),
+    getItem(<Link href="/admin/home/slider">Slider</Link>, '4'),
     getItem(<Link href="/admin/alex">Alex</Link>, '5'),
   ]),
   getItem('Team', 'sub2', <TeamOutlined />, [

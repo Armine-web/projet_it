@@ -2,7 +2,7 @@
 
 import '@ant-design/v5-patch-for-react-19';
 import React, { useState } from 'react';
-import { Button, Input, Select, Row, Col, Space, Typography } from 'antd';
+import { Button, Input, Select, Row, Col, Space, Typography, Switch, Popconfirm } from 'antd';
 import {
   StarOutlined,
   HeartOutlined,
@@ -19,6 +19,7 @@ interface ServiceRow {
   icon: string;
   description: string;
   lang: string;
+  visible: boolean;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -28,14 +29,14 @@ const iconMap: Record<string, React.ReactNode> = {
   'user': <UserOutlined style={{ marginRight: 8 }} />,
 };
 
-// Initial services
+
 const initialServices: ServiceRow[] = [
-  { id: 1, order: 1, icon: 'star', description: 'High quality programs', lang: 'en' },
-  { id: 2, order: 2, icon: 'heart', description: 'Trusted by many', lang: 'en' },
-  { id: 3, order: 1, icon: 'star', description: 'Բարձրորակ ծրագրեր', lang: 'am' },
-  { id: 4, order: 2, icon: 'heart', description: 'Վստահելի գործընկեր', lang: 'am' },
-  { id: 5, order: 1, icon: 'star', description: 'Высокое качество', lang: 'ru' },
-  { id: 6, order: 2, icon: 'heart', description: 'Надёжный партнёр', lang: 'ru' },
+  { id: 1, order: 1, icon: 'star', description: 'High quality programs', lang: 'en', visible: true },
+  { id: 2, order: 2, icon: 'heart', description: 'Trusted by many', lang: 'en', visible: true},
+  { id: 3, order: 1, icon: 'star', description: 'Բարձրորակ ծրագրեր', lang: 'am', visible: true },
+  { id: 4, order: 2, icon: 'heart', description: 'Վստահելի գործընկեր', lang: 'am', visible: true },
+  { id: 5, order: 1, icon: 'star', description: 'Высокое качество', lang: 'ru', visible: true },
+  { id: 6, order: 2, icon: 'heart', description: 'Надёжный партнёр', lang: 'ru', visible: true },
 ];
 
 export function Fields() {
@@ -59,21 +60,25 @@ export function Fields() {
       icon: '',
       description: '',
       lang: selectedLang,
+      visible: true,
     };
     setServices([...services, newRow]);
   };
 
-  const deleteServiceRow = (id: number) => {
-    setServices(services.filter(row => row.id !== id));
-  };
+ const deleteServiceRow = (id: number) => {
+  const deletedRow = services.find(row => row.id === id);
+  if (deletedRow) {
+    console.log('Deleted service:', deletedRow);
+  }
+  setServices(services.filter(row => row.id !== id));
+};
 
-  const updateServiceRow = (id: number, key: keyof ServiceRow, value: string | number) => {
+  const updateServiceRow = (id: number, key: keyof ServiceRow, value: string | number | boolean) => {
     setServices(services.map(row => row.id === id ? { ...row, [key]: value } : row));
   };
 
   const saveServiceRow = (row: ServiceRow) => {
     console.log('Saved service:', row);
-    console.log('Selected language:', selectedLang);
   };
 
   return (
@@ -126,18 +131,36 @@ export function Fields() {
                 autoSize={{ minRows: 2, maxRows: 4 }}
               />
             </Col>
-            <Col span={1}>
-              <Button type="primary" onClick={() => saveServiceRow(row)}>
-                Save
-              </Button>
-            </Col>
-            <Col span={1}>
-              <Button type="primary" danger onClick={() => deleteServiceRow(row.id)}>
-                Delete
-              </Button>
+            <Col span={2}>
+              <Space>
+                <Button type="primary" onClick={() => saveServiceRow(row)}>
+                  Save
+                </Button>
+                <Popconfirm
+                  title="Are you sure to delete this service?"
+                  onConfirm={() => deleteServiceRow(row.id)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="primary" danger>
+                    Delete
+                  </Button>
+                </Popconfirm>
+              </Space>
             </Col>
           </Row>
-
+          
+          <Col span={3}>
+            <Switch
+              checked={row.visible}
+              onChange={(checked) => {
+                updateServiceRow(row.id, 'visible', checked);
+                console.log(`Row ${row.id} is now ${checked ? 'visible' : 'hidden'}`);
+              }}
+              checkedChildren="Visible"
+              unCheckedChildren="Hidden"
+            />
+          </Col>
 
           <Row>
             <Col span={24}>
