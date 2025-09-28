@@ -3,7 +3,6 @@
 import '@ant-design/v5-patch-for-react-19';
 import React, { useState } from 'react';
 import {
-  Upload,
   Button,
   Input,
   Space,
@@ -15,15 +14,12 @@ import {
   Switch,
   Popconfirm,
 } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import type { UploadFile } from 'antd/es/upload/interface';
 
 const { Text } = Typography;
 
 interface SlideItem {
   id: string;
   order: number;
-  file?: UploadFile;
   caption: string;
   lang: 'en' | 'am' | 'ru';
   visible: boolean;
@@ -44,7 +40,7 @@ export default function SliderImageUploader() {
   const updateField = (
     id: string,
     key: keyof SlideItem,
-    value: string | number | boolean | UploadFile | undefined
+    value: string | number | boolean | undefined
   ) => {
     setSlides(prev =>
       prev.map(slide =>
@@ -53,21 +49,6 @@ export default function SliderImageUploader() {
           : slide
       )
     );
-  };
-
-  const handleUploadChange = (id: string, info: { file: UploadFile; fileList: UploadFile[] }) => {
-    const file = info.file;
-    let url: string | undefined;
-    if (file.originFileObj) {
-      url = URL.createObjectURL(file.originFileObj as File);
-    } else if (file instanceof File) {
-      url = URL.createObjectURL(file as File);
-    }
-    console.log('Preview URL inside handler:', url);
-    updateField(id, 'file', file);
-    if (url) {
-      updateField(id, 'previewUrl', url);
-    }
   };
 
   const deleteSlide = (id: string) => {
@@ -79,7 +60,6 @@ export default function SliderImageUploader() {
   const saveSlide = (slide: SlideItem) => {
     console.log('Saving slide:', slide);
     message.success(`Slide ${slide.id} saved`);
-    // այստեղ կարող եք ուղարկել տվյալը սերվերին
   };
 
   const addSlide = () => {
@@ -125,22 +105,21 @@ export default function SliderImageUploader() {
             </Col>
 
             <Col span={4}>
-              {slide.previewUrl ? (
+              <Input
+                value={slide.previewUrl || ''}
+                placeholder="Image URL"
+                onChange={e =>
+                  updateField(slide.id, 'previewUrl', e.target.value)
+                }
+              />
+              {slide.previewUrl && (
                 <img
                   src={slide.previewUrl}
                   alt="Preview"
                   width={100}
                   height={80}
-                  style={{ objectFit: 'cover', borderRadius: 4 }}
+                  style={{ objectFit: 'cover', borderRadius: 4, marginTop: 4 }}
                 />
-              ) : (
-                <Upload
-                  showUploadList={false}
-                  beforeUpload={file => false}
-                  onChange={info => handleUploadChange(slide.id, info)}
-                >
-                  <Button icon={<UploadOutlined />}>Upload Image</Button>
-                </Upload>
               )}
             </Col>
 
