@@ -6,32 +6,36 @@ import {
   Button,
   Input,
   Space,
-  Typography,
   message,
   Row,
   Col,
   Select,
-  Switch,
   Popconfirm,
+  Switch,
 } from 'antd';
-
-const { Text } = Typography;
 
 interface SlideItem {
   id: string;
   order: number;
-  caption: string;
+  image: string;
+  description: string;
   lang: 'en' | 'am' | 'ru';
   visible: boolean;
-  previewUrl?: string;
 }
 
-export default function SliderImageUploader() {
+export function Fields() {
+  const descriptionsByLang: Record<'en' | 'am' | 'ru', string> = {
+    en: 'Description',
+    am: 'Նկարագրություն',
+    ru: 'Описание',
+  };
+
   const [slides, setSlides] = useState<SlideItem[]>([
     {
       id: crypto.randomUUID(),
       order: 1,
-      caption: '',
+      image: '',
+      description: '',
       lang: 'en',
       visible: true,
     },
@@ -40,45 +44,71 @@ export default function SliderImageUploader() {
   const updateField = (
     id: string,
     key: keyof SlideItem,
-    value: string | number | boolean | undefined
+    value: string | number | boolean
   ) => {
     setSlides(prev =>
       prev.map(slide =>
-        slide.id === id
-          ? { ...slide, [key]: value }
-          : slide
+        slide.id === id ? { ...slide, [key]: value } : slide
       )
     );
   };
 
   const deleteSlide = (id: string) => {
-    const slideToDelete = slides.find(s => s.id === id);
-    console.log('Deleting slide:', slideToDelete);
+    const deletedSlide = slides.find(s => s.id === id);
     setSlides(prev => prev.filter(s => s.id !== id));
+    if (deletedSlide) {
+      console.log(
+        `Deleted slide: id=${deletedSlide.id}, order=${deletedSlide.order}, image=${deletedSlide.image}, description=${deletedSlide.description}, lang=${deletedSlide.lang}, visible=${deletedSlide.visible}`
+      );
+    }
   };
 
   const saveSlide = (slide: SlideItem) => {
-    console.log('Saving slide:', slide);
     message.success(`Slide ${slide.id} saved`);
+    console.log(
+      `Saved slide: id=${slide.id}, order=${slide.order}, image=${slide.image}, description=${slide.description}, lang=${slide.lang}, visible=${slide.visible}`
+    );
   };
 
   const addSlide = () => {
     const nextOrder = slides.length > 0
       ? Math.max(...slides.map(s => s.order)) + 1
       : 1;
+
     const newSlide: SlideItem = {
       id: crypto.randomUUID(),
       order: nextOrder,
-      caption: '',
-      lang: 'en',
+      description: '',
+      image: '',
+      lang: slides[0].lang,
       visible: true,
     };
     setSlides(prev => [...prev, newSlide]);
   };
 
+  const handleLangChange = (value: 'en' | 'am' | 'ru') => {
+    setSlides(prev =>
+      prev.map(slide => ({
+        ...slide,
+        lang: value,
+      }))
+    );
+  };
+
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
-      <Text strong>Slider Items</Text>
+      <div style={{ marginBottom: 12 }}>
+        <Select
+          value={slides[0]?.lang || 'en'}
+          onChange={handleLangChange}
+          options={[
+            { label: 'English', value: 'en' },
+            { label: 'Armenian', value: 'am' },
+            { label: 'Russian', value: 'ru' },
+          ]}
+          style={{ width: 150 }}
+        />
+      </div>
 
       {slides.map((slide) => (
         <div
@@ -104,57 +134,28 @@ export default function SliderImageUploader() {
               />
             </Col>
 
-            <Col span={4}>
+            <Col span={6}>
               <Input
-                value={slide.previewUrl || ''}
-                placeholder="Image URL"
+                value={slide.description}
+                placeholder={descriptionsByLang[slide.lang]}
                 onChange={e =>
-                  updateField(slide.id, 'previewUrl', e.target.value)
+                  updateField(slide.id, 'description', e.target.value)
                 }
               />
-              {slide.previewUrl && (
-                <img
-                  src={slide.previewUrl}
-                  alt="Preview"
-                  width={100}
-                  height={80}
-                  style={{ objectFit: 'cover', borderRadius: 4, marginTop: 4 }}
-                />
-              )}
             </Col>
 
             <Col span={6}>
               <Input
-                value={slide.caption}
-                placeholder="Caption"
-                onChange={e =>
-                  updateField(slide.id, 'caption', e.target.value)
-                }
-              />
-            </Col>
-
-            <Col span={3}>
-              <Select
-                value={slide.lang}
-                onChange={value =>
-                  updateField(slide.id, 'lang', value as 'en' | 'am' | 'ru')
-                }
-                options={[
-                  { label: 'English', value: 'en' },
-                  { label: 'Armenian', value: 'am' },
-                  { label: 'Russian', value: 'ru' },
-                ]}
-                style={{ width: 100 }}
+                value={slide.image}
+                placeholder="Image URL"
+                onChange={e => updateField(slide.id, 'image', e.target.value)}
               />
             </Col>
 
             <Col span={3}>
               <Switch
                 checked={slide.visible}
-                onChange={checked => {
-                  updateField(slide.id, 'visible', checked);
-                  console.log(`Slide ${slide.id} visibility changed: ${checked}`);
-                }}
+                onChange={checked => updateField(slide.id, 'visible', checked)}
                 checkedChildren="Visible"
                 unCheckedChildren="Hidden"
               />
@@ -162,10 +163,7 @@ export default function SliderImageUploader() {
 
             <Col span={6}>
               <Space>
-                <Button
-                  type="primary"
-                  onClick={() => saveSlide(slide)}
-                >
+                <Button type="primary" onClick={() => saveSlide(slide)}>
                   Save
                 </Button>
 
@@ -175,9 +173,7 @@ export default function SliderImageUploader() {
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button danger>
-                    Delete
-                  </Button>
+                  <Button danger>Delete</Button>
                 </Popconfirm>
               </Space>
             </Col>
